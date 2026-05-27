@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -11,12 +11,10 @@ const DISMISS_KEY = "trinity:install-dismissed-at";
 const DISMISS_TTL_DAYS = 7;
 
 function isIos() {
-  if (typeof navigator === "undefined") return false;
   return /iPad|iPhone|iPod/.test(navigator.userAgent);
 }
 
 function isStandalone() {
-  if (typeof window === "undefined") return false;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as { standalone?: boolean }).standalone === true
@@ -24,37 +22,45 @@ function isStandalone() {
 }
 
 function isRecentlyDismissed() {
-  if (typeof window === "undefined") return false;
   const raw = window.localStorage.getItem(DISMISS_KEY);
   if (!raw) return false;
-  const at = Number(raw);
-  return Date.now() - at < DISMISS_TTL_DAYS * 24 * 60 * 60 * 1000;
+  return Date.now() - Number(raw) < DISMISS_TTL_DAYS * 24 * 60 * 60 * 1000;
 }
 
+type Env = "ssr" | "suppress" | "ios" | "default";
+
+const noopSubscribe = () => () => {};
+const getClientEnv = (): Env => {
+  if (isStandalone() || isRecentlyDismissed()) return "suppress";
+  if (isIos()) return "ios";
+  return "default";
+};
+const getServerEnv = (): Env => "ssr";
+
 export function InstallPrompt() {
+  const env = useSyncExternalStore(noopSubscribe, getClientEnv, getServerEnv);
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showIosHint, setShowIosHint] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (isStandalone() || isRecentlyDismissed()) return;
-
+    if (env === "ssr" || env === "suppress") return;
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
-
-    if (isIos()) setShowIosHint(true);
-
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);
     };
-  }, []);
+  }, [env]);
+
+  if (env === "ssr" || env === "suppress" || dismissed) return null;
+  if (env !== "ios" && !deferred) return null;
 
   const dismiss = () => {
     window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setDeferred(null);
-    setShowIosHint(false);
+    setDismissed(true);
   };
 
   const install = async () => {
@@ -64,8 +70,6 @@ export function InstallPrompt() {
     if (choice.outcome === "accepted") dismiss();
     setDeferred(null);
   };
-
-  if (!deferred && !showIosHint) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 px-safe pb-safe">
