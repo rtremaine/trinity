@@ -11,11 +11,14 @@ export default function SignInPage() {
   );
 
   return (
-    <div className="mx-auto max-w-sm space-y-6 py-16">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
+    <div className="space-y-8">
+      <header className="text-center">
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <p className="mt-1 text-sm text-gray-500">Sign in to your account</p>
+      </header>
 
       <form action={formAction} className="space-y-4">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label htmlFor="email" className="text-sm font-medium">
             Email
           </label>
@@ -25,11 +28,12 @@ export default function SignInPage() {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
+            inputMode="email"
+            className="block h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-base outline-none focus:border-black focus:ring-2 focus:ring-black/10 dark:border-neutral-700 dark:bg-neutral-900 dark:focus:border-white dark:focus:ring-white/10"
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label htmlFor="password" className="text-sm font-medium">
             Password
           </label>
@@ -39,26 +43,28 @@ export default function SignInPage() {
             type="password"
             required
             autoComplete="current-password"
-            className="w-full rounded border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
+            className="block h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-base outline-none focus:border-black focus:ring-2 focus:ring-black/10 dark:border-neutral-700 dark:bg-neutral-900 dark:focus:border-white dark:focus:ring-white/10"
           />
         </div>
 
         {state?.error && (
-          <p className="text-sm text-red-600">{state.error}</p>
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
+            {state.error}
+          </p>
         )}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="h-12 w-full rounded-lg bg-black px-4 text-base font-medium text-white active:bg-black/90 disabled:opacity-50 dark:bg-white dark:text-black dark:active:bg-white/90"
         >
-          {pending ? "Signing in..." : "Sign in"}
+          {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-center text-sm text-gray-500">
         No account?{" "}
-        <Link href="/signup" className="underline">
+        <Link href="/signup" className="font-medium text-black underline dark:text-white">
           Create one
         </Link>
       </p>

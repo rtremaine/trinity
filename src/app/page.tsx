@@ -5,33 +5,35 @@ export default async function HomePage() {
   const session = await auth();
 
   return (
-    <main className="mx-auto max-w-2xl space-y-8 py-24 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">Trinity</h1>
-      <p className="text-gray-600 dark:text-gray-400">
-        Next.js + Postgres starter with auth, roles, and audit logging.
-      </p>
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 pt-safe pb-safe text-center">
+      <div className="space-y-3">
+        <h1 className="text-3xl font-semibold tracking-tight">Trinity</h1>
+        <p className="text-sm text-gray-500">
+          Next.js + Postgres app with auth, roles, and audit logging.
+        </p>
+      </div>
 
-      <div className="flex justify-center gap-3">
+      <div className="flex flex-col gap-3">
         {session?.user ? (
           <Link
             href="/dashboard"
-            className="rounded bg-black px-4 py-2 text-white dark:bg-white dark:text-black"
+            className="flex h-12 items-center justify-center rounded-lg bg-black text-base font-medium text-white active:bg-black/90 dark:bg-white dark:text-black"
           >
             Go to dashboard
           </Link>
         ) : (
           <>
             <Link
-              href="/signin"
-              className="rounded border border-gray-300 px-4 py-2 dark:border-gray-700"
+              href="/signup"
+              className="flex h-12 items-center justify-center rounded-lg bg-black text-base font-medium text-white active:bg-black/90 dark:bg-white dark:text-black"
             >
-              Sign in
+              Create account
             </Link>
             <Link
-              href="/signup"
-              className="rounded bg-black px-4 py-2 text-white dark:bg-white dark:text-black"
+              href="/signin"
+              className="flex h-12 items-center justify-center rounded-lg border border-gray-300 text-base font-medium dark:border-neutral-700"
             >
-              Sign up
+              Sign in
             </Link>
           </>
         )}
