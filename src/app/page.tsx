@@ -16,7 +16,7 @@ export default async function HomePage() {
       <div className="flex flex-col gap-3">
         {session?.user ? (
           <Link
-            href="/dashboard"
+            href="/today"
             className="flex h-12 items-center justify-center rounded-lg bg-black text-base font-medium text-white active:bg-black/90 dark:bg-white dark:text-black"
           >
             Go to dashboard

@@ -29,7 +29,7 @@ export async function requireUser() {
 export async function requireRole(role: "user" | "admin") {
   const user = await requireUser();
   if (role === "admin" && user.role !== "admin") {
-    redirect("/dashboard?error=forbidden");
+    redirect("/today?error=forbidden");
   }
   return user;
 }

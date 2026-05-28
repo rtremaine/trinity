@@ -65,7 +65,7 @@ export async function signUpAction(
     await signIn("credentials", {
       email,
       password: parsed.data.password,
-      redirectTo: "/dashboard",
+      redirectTo: "/today",
     });
   } catch (err) {
     if (err instanceof AuthError) {
@@ -90,7 +90,7 @@ export async function signInAction(
     await signIn("credentials", {
       email: parsed.data.email.toLowerCase(),
       password: parsed.data.password,
-      redirectTo: "/dashboard",
+      redirectTo: "/today",
     });
   } catch (err) {
     if (err instanceof AuthError) {

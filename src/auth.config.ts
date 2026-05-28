@@ -14,17 +14,18 @@ export default {
 
       if (isOnAuthPage) {
         if (isLoggedIn) {
-          return Response.redirect(new URL("/dashboard", nextUrl));
+          return Response.redirect(new URL("/today", nextUrl));
         }
         return true;
       }
 
-      if (nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/admin")) {
-        return isLoggedIn;
+      if (nextUrl.pathname.startsWith("/admin")) {
+        return isLoggedIn && auth?.user?.role === "admin";
       }
 
-      if (nextUrl.pathname.startsWith("/admin")) {
-        return isLoggedIn && auth.user.role === "admin";
+      const protectedPrefixes = ["/today", "/archive", "/readings"];
+      if (protectedPrefixes.some((p) => nextUrl.pathname.startsWith(p))) {
+        return isLoggedIn;
       }
 
       return true;

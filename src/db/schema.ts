@@ -1,15 +1,20 @@
 import {
   boolean,
+  check,
+  date,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 export const userRole = pgEnum("user_role", ["user", "admin"]);
@@ -87,7 +92,86 @@ export const auditLogs = pgTable(
   ]
 );
 
+export const testament = pgEnum("testament", ["OT", "NT"]);
+
+export const books = pgTable(
+  "books",
+  {
+    id: smallint("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    shortName: text("short_name").notNull(),
+    testament: testament("testament").notNull(),
+    orderIdx: smallint("order_idx").notNull(),
+    chapterCount: smallint("chapter_count").notNull(),
+  },
+  (t) => [uniqueIndex("books_order_idx_uq").on(t.orderIdx)]
+);
+
+export const verses = pgTable(
+  "verses",
+  {
+    bookId: smallint("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    chapter: smallint("chapter").notNull(),
+    verseNum: smallint("verse_num").notNull(),
+    text: text("text").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.bookId, t.chapter, t.verseNum] }),
+    index("verses_book_chapter_idx").on(t.bookId, t.chapter),
+  ]
+);
+
+export const dailyReadings = pgTable(
+  "daily_readings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    date: date("date", { mode: "string" }).notNull().unique(),
+    commentary: text("commentary"),
+    createdBy: uuid("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [index("daily_readings_date_idx").on(t.date)]
+);
+
+export const dailyReadingVerses = pgTable(
+  "daily_reading_verses",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    readingId: uuid("reading_id")
+      .notNull()
+      .references(() => dailyReadings.id, { onDelete: "cascade" }),
+    position: smallint("position").notNull(),
+    bookId: smallint("book_id")
+      .notNull()
+      .references(() => books.id),
+    chapter: smallint("chapter").notNull(),
+    verseStart: smallint("verse_start").notNull(),
+    verseEnd: smallint("verse_end").notNull(),
+  },
+  (t) => [
+    index("drv_reading_idx").on(t.readingId, t.position),
+    check(
+      "drv_range_check",
+      sql`${t.verseEnd} >= ${t.verseStart} AND ${t.verseStart} >= 1 AND ${t.chapter} >= 1`
+    ),
+  ]
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+export type Book = typeof books.$inferSelect;
+export type Verse = typeof verses.$inferSelect;
+export type DailyReading = typeof dailyReadings.$inferSelect;
+export type DailyReadingVerse = typeof dailyReadingVerses.$inferSelect;

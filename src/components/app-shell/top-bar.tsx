@@ -3,14 +3,19 @@
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/app/(auth)/actions";
 
-const TITLES: Record<string, string> = {
-  "/dashboard": "Home",
-  "/admin": "Admin",
-};
+const TITLES: Array<{ match: (path: string) => boolean; title: string }> = [
+  { match: (p) => p === "/today", title: "Today" },
+  { match: (p) => p === "/archive", title: "Archive" },
+  { match: (p) => p.startsWith("/readings/"), title: "Reading" },
+  { match: (p) => p === "/admin", title: "Admin" },
+  { match: (p) => p === "/admin/readings", title: "Daily readings" },
+  { match: (p) => p === "/admin/readings/new", title: "New reading" },
+  { match: (p) => /^\/admin\/readings\/[^/]+\/edit$/.test(p), title: "Edit reading" },
+];
 
 export function TopBar() {
   const pathname = usePathname();
-  const title = TITLES[pathname] ?? "Trinity";
+  const title = TITLES.find((t) => t.match(pathname))?.title ?? "Trinity";
 
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 pt-safe backdrop-blur supports-backdrop-filter:bg-white/70 dark:border-neutral-800 dark:bg-neutral-950/90 dark:supports-backdrop-filter:bg-neutral-950/70">

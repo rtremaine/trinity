@@ -12,7 +12,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file=.env --import tsx src/db/migrate.ts",
     "db:studio": "node --env-file=.env node_modules/drizzle-kit/bin.cjs studio",
-    "db:seed": "node --env-file=.env --import tsx src/db/seed.ts"
+    "db:seed": "node --env-file=.env --import tsx src/db/seed.ts",
+    "db:seed:bible": "node --env-file=.env --import tsx src/db/seed-bible.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
