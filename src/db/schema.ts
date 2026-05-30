@@ -173,5 +173,65 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
 export type Book = typeof books.$inferSelect;
 export type Verse = typeof verses.$inferSelect;
+export const comments = pgTable(
+  "comments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    readingId: uuid("reading_id")
+      .notNull()
+      .references(() => dailyReadings.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index("comments_reading_created_idx").on(t.readingId, t.createdAt),
+    index("comments_user_idx").on(t.userId),
+  ]
+);
+
+export const commentMentions = pgTable(
+  "comment_mentions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    commentId: uuid("comment_id")
+      .notNull()
+      .references(() => comments.id, { onDelete: "cascade" }),
+    mentionedUserId: uuid("mentioned_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // The literal "@Display Name" token chosen in the picker, so the body can be
+    // re-tokenized into chips even if the mentioned user later changes their name.
+    mentionText: text("mention_text").notNull(),
+    // null = unread; set when the mentioned user opens their mentions feed.
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("comment_mentions_comment_user_uq").on(
+      t.commentId,
+      t.mentionedUserId
+    ),
+    index("comment_mentions_mentioned_created_idx").on(
+      t.mentionedUserId,
+      t.createdAt
+    ),
+  ]
+);
+
 export type DailyReading = typeof dailyReadings.$inferSelect;
 export type DailyReadingVerse = typeof dailyReadingVerses.$inferSelect;
+export type Comment = typeof comments.$inferSelect;
+export type NewComment = typeof comments.$inferInsert;
+export type CommentMention = typeof commentMentions.$inferSelect;
+export type NewCommentMention = typeof commentMentions.$inferInsert;

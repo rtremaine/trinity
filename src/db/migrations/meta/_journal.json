@@ -15,6 +15,13 @@
       "when": 1779929157488,
       "tag": "0001_stiff_blazing_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780146033363,
+      "tag": "0002_orange_roughhouse",
+      "breakpoints": true
     }
   ]
 }

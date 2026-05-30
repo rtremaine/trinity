@@ -2,9 +2,10 @@ import Link from "next/link";
 import { requireUser } from "@/lib/authz";
 import { getReadingByDate, todayDateStr } from "@/lib/readings";
 import { ReadingView } from "@/components/reading-view";
+import { CommentSection } from "@/components/comments/comment-section";
 
 export default async function TodayPage() {
-  await requireUser();
+  const user = await requireUser();
   const date = todayDateStr();
   const reading = await getReadingByDate(date);
 
@@ -16,7 +17,15 @@ export default async function TodayPage() {
       </header>
 
       {reading ? (
-        <ReadingView reading={reading} />
+        <>
+          <ReadingView reading={reading} />
+          <CommentSection
+            readingId={reading.id}
+            date={date}
+            currentUserId={user.id}
+            isAdmin={user.role === "admin"}
+          />
+        </>
       ) : (
         <div className="rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center dark:border-neutral-700 dark:bg-neutral-900">
           <p className="text-sm font-medium">No reading for today yet</p>

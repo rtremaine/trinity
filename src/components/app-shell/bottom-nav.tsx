@@ -7,6 +7,7 @@ type Tab = {
   href: string;
   label: string;
   icon: React.ReactNode;
+  badge?: number;
 };
 
 function BookIcon() {
@@ -35,12 +36,28 @@ function ShieldIcon() {
   );
 }
 
-export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
+function BellIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  );
+}
+
+export function BottomNav({
+  isAdmin,
+  unreadMentions = 0,
+}: {
+  isAdmin: boolean;
+  unreadMentions?: number;
+}) {
   const pathname = usePathname();
 
   const tabs: Tab[] = [
     { href: "/today", label: "Today", icon: <BookIcon /> },
     { href: "/archive", label: "Archive", icon: <ArchiveIcon /> },
+    { href: "/mentions", label: "Mentions", icon: <BellIcon />, badge: unreadMentions },
     ...(isAdmin ? [{ href: "/admin/readings", label: "Admin", icon: <ShieldIcon /> }] : []),
   ];
 
@@ -63,7 +80,14 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                     : "text-gray-500 dark:text-neutral-400"
                 }`}
               >
-                <span aria-hidden>{tab.icon}</span>
+                <span aria-hidden className="relative">
+                  {tab.icon}
+                  {tab.badge ? (
+                    <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-semibold leading-none text-white">
+                      {tab.badge > 9 ? "9+" : tab.badge}
+                    </span>
+                  ) : null}
+                </span>
                 <span className="font-medium">{tab.label}</span>
               </Link>
             </li>
