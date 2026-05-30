@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/authz";
 import { getReadingByDate } from "@/lib/readings";
 import { ReadingView } from "@/components/reading-view";
+import { CommentSection } from "@/components/comments/comment-section";
 
 function formatLongDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
@@ -18,7 +19,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 type Params = Promise<{ date: string }>;
 
 export default async function ReadingByDatePage({ params }: { params: Params }) {
-  await requireUser();
+  const user = await requireUser();
   const { date } = await params;
   if (!DATE_RE.test(date)) notFound();
 
@@ -32,6 +33,12 @@ export default async function ReadingByDatePage({ params }: { params: Params }) 
         <h2 className="text-xl font-semibold">{formatLongDate(date)}</h2>
       </header>
       <ReadingView reading={reading} />
+      <CommentSection
+        readingId={reading.id}
+        date={date}
+        currentUserId={user.id}
+        isAdmin={user.role === "admin"}
+      />
     </div>
   );
 }

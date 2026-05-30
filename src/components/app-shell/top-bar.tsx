@@ -6,6 +6,7 @@ import { signOutAction } from "@/app/(auth)/actions";
 const TITLES: Array<{ match: (path: string) => boolean; title: string }> = [
   { match: (p) => p === "/today", title: "Today" },
   { match: (p) => p === "/archive", title: "Archive" },
+  { match: (p) => p === "/mentions", title: "Mentions" },
   { match: (p) => p.startsWith("/readings/"), title: "Reading" },
   { match: (p) => p === "/admin", title: "Admin" },
   { match: (p) => p === "/admin/readings", title: "Daily readings" },
